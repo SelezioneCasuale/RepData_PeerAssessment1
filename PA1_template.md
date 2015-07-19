@@ -13,7 +13,8 @@
 
 #### First, we load the data. No need for preprocessing
 
-```{r , warning=FALSE}
+
+```r
 library(ggplot2)
 data <- read.csv('activity.csv',header=TRUE)
 ```
@@ -24,7 +25,8 @@ data <- read.csv('activity.csv',header=TRUE)
 
 &nbsp;
 
-```{r , fig.align='center'}
+
+```r
 countSteps <- tapply(data$steps, data$date, sum, na.rm = TRUE)
 meanSteps  <- mean(countSteps)
 medianSteps <- median(countSteps)
@@ -32,8 +34,10 @@ qplot(countSteps, geom="histogram",
        binwidth=2000, main = "Number of Steps per day",
        fill = I("blue"), xlab = "Number of Steps", ylab = "Frequency",
        col=I("red"), alpha=I(.5))
-``` 
-#### Steps per day: Mean = `r meanSteps`,  Median = `r medianSteps`
+```
+
+<img src="figure/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />
+#### Steps per day: Mean = 9354.2295082,  Median = 10395
 
 &nbsp;
 &nbsp;
@@ -43,7 +47,8 @@ qplot(countSteps, geom="histogram",
 &nbsp;
 
 #### For each 5-minutes interval, mean number of steps per each day is calculated
-```{r, fig.align='center'}
+
+```r
 dayActiv <- tapply(data$steps, data$interval, mean, na.rm = TRUE)
 x <- unique(data$interval)
 df <- data.frame(x,dayActiv)
@@ -56,8 +61,10 @@ ggplot(df, aes(x)) +
         ggtitle("Average daily activity pattern")
 ```
 
+<img src="figure/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" />
 
-#### 5-minutes time interval containing maximum number of steps: `r bestInterval` (`r maxSteps` steps). 
+
+#### 5-minutes time interval containing maximum number of steps: 835 (206.1698113 steps). 
 
 &nbsp;
 &nbsp;
@@ -68,14 +75,16 @@ ggplot(df, aes(x)) +
 
 #### Find all NA values in the dataset
 
-```{r}
+
+```r
 totNAns <- sum(is.na(data))
 ```
-Number of missing values in the dataset = `r totNAns`
+Number of missing values in the dataset = 2304
 
 #### In order to fill NAs, we can use average values for corresponding 5-minutes intervals.
   
-```{r}
+
+```r
 repParam <- length(data$interval)/length(dayActiv)
 dayActiv_rep <- rep(dayActiv, times=repParam)
 newData <- data.frame(data,dayActiv_rep)
@@ -84,7 +93,8 @@ newData[is.na(newData[,'steps']),'steps'] = newData[is.na(newData[,'steps']),'da
 
 #### Now we can plot the histogram and calculate mean and median, like in section 1
 
-```{r , fig.align='center'}
+
+```r
 countSteps_fill <- tapply(newData$steps, newData$date, sum, na.rm = TRUE)
 meanSteps_fill  <- mean(countSteps_fill)
 medianSteps_fill <- median(countSteps_fill)
@@ -93,7 +103,9 @@ qplot(countSteps_fill, geom="histogram",
        fill = I("blue"), xlab = "Number of Steps", ylab = "Frequency",
        col=I("black"), alpha=I(.5))
 ```
-#### Steps per day: Mean = `r meanSteps_fill`,  Median = `r medianSteps_fill`
+
+<img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
+#### Steps per day: Mean = 1.0766189 &times; 10<sup>4</sup>,  Median = 1.0766189 &times; 10<sup>4</sup>
 #### Mean and Median are now equal and slightly higher. It may be interesting to see how different substitution strategies for missing values affect the final result 
 
 &nbsp;
@@ -104,13 +116,27 @@ qplot(countSteps_fill, geom="histogram",
 &nbsp;
 
 #### We set Rstudio in such a way that weekdays will be printed in english
-```{r}
+
+```r
 Sys.setlocale("LC_TIME", "en_US")
+```
+
+```
+## [1] "en_US"
+```
+
+```r
 weekdays(Sys.Date()+0:6)
 ```
 
+```
+## [1] "Sunday"    "Monday"    "Tuesday"   "Wednesday" "Thursday"  "Friday"   
+## [7] "Saturday"
+```
+
 #### Then simply classify days in weekday and weekend
-```{r}
+
+```r
 days_from_data <- weekdays(as.Date(newData$date))
 weekdays <- c("Monday","Tuesday","Wednesday","Thursday","Friday")
 whichDay <- factor(days_from_data %in% weekdays)
@@ -120,7 +146,8 @@ newData <- data.frame(newData,whichDay)
 ```
 
 #### Panel plot comparing weekdays and weekends
-```{r, fig.height=10, fig.width=10, fig.align='center', message=FALSE, warning=FALSE}
+
+```r
 library(gridExtra)
 dataWeekDay <- newData[newData["whichDay"]=="weekday",]
 dataWeekEnd <- newData[newData["whichDay"]=="weekend",]
@@ -141,6 +168,8 @@ g2 <- ggplot(df_end, aes(x)) +
         ggtitle("Weekends")  
 grid.arrange(g1, g2)
 ```
+
+<img src="figure/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" />
   
 
 
